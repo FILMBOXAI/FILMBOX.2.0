@@ -1,5 +1,5 @@
 <script>
-const TMDB_KEY="TU_API_KEY_AQUI";
+const TMDB_KEY="38e497c6c1a043d1341416e80915669f";
 const IMG="https://image.tmdb.org/t/p/original";
 
 async function loadHome(){
