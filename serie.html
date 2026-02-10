@@ -86,8 +86,14 @@ async function loadSerie() {
   const chaptersContainer = document.getElementById("chaptersContainer");
   chaptersContainer.innerHTML = "";
 
-  // Usar siempre la primera temporada (season_number = 1) y crear botones con embed unlimplay
-  const seasonNum = 1;
+// Usar la última temporada si viene en la URL, sino la última disponible
+const urlParams = new URLSearchParams(window.location.search);
+let seasonNum = parseInt(urlParams.get("season"));
+
+if (!seasonNum) {
+  // Si no viene en URL, usar la última temporada de la serie
+  seasonNum = serie.number_of_seasons;
+}
   const episodesData = await getEpisodes(id, seasonNum);
 
   episodesData.episodes.forEach(ep => {
