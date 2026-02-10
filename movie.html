@@ -3,14 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VER PELÍCULA ONLINE</title>
-<link rel="stylesheet" href="movie.css">
+<title>FILMBOX - Película</title>
+<style>
+body{background:#0d0d0d;color:#fff;font-family:Poppins,sans-serif;margin:0}
+.container{max-width:900px;margin:auto;padding:16px}
+.video-container{background:#000;border-radius:16px;overflow:hidden;box-shadow:0 0 15px rgba(255,0,0,.4)}
+iframe{width:100%;height:200px;border:none}
+.info-box{background:#111;border-radius:16px;padding:16px;margin-top:16px;display:flex;gap:16px;align-items:flex-start}
+.poster{width:100px;border-radius:10px}
+.details{flex:1}
+.details h2{text-transform:uppercase;margin:0 0 8px}
+.icons{display:flex;gap:16px;color:#ccc;font-size:.9rem;flex-wrap:wrap}
+.icon-item{display:flex;align-items:center;gap:6px}
+.icon-item svg{width:18px;height:18px;fill:#e50914}
+.synopsis{background:#111;border-radius:16px;padding:16px;margin-top:16px;color:#ccc;line-height:1.5}
+</style>
 </head>
 <body>
+<div class="container">
 
-<div id="app"></div>
+<div class="video-container">
+  <iframe id="videoPlayer" allowfullscreen></iframe>
+</div>
+
+<div class="info-box">
+  <img src="" class="poster" id="poster">
+  <div class="details">
+    <h2 id="title">Cargando...</h2>
+    <div class="icons">
+      <div class="icon-item">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Z"/>
+        </svg>
+        <span id="release_date">--</span>
+      </div>
+
+      <div class="icon-item">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0 2a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm.5-10V7h-1.5v6h5v-1.5Z"/>
+        </svg>
+        <span id="runtime">-- min</span>
+      </div>
+
+      <div class="icon-item">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="m12 17.27 6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.73L5.82 21Z"/>
+        </svg>
+        <span id="vote_average">--</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="synopsis" id="overview">Cargando sinopsis...</div>
+
+</div>
 
 <script src="tmdb.js"></script>
-<script src="movie.js"></script>
+<script>
+async function loadMovie() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  if (!id) return;
+
+  const movie = await getMovie(id);
+
+  document.getElementById("poster").src = "https://image.tmdb.org/t/p/original" + movie.poster_path;
+  document.getElementById("title").textContent = movie.title;
+  document.getElementById("overview").textContent = movie.overview;
+  document.getElementById("release_date").textContent = movie.release_date;
+  document.getElementById("vote_average").textContent = movie.vote_average;
+  document.getElementById("runtime").textContent = movie.runtime + " min";
+
+  // Embed automático con unlimplay.com
+  document.getElementById("videoPlayer").src = `https://unlimplay.com/play/embed/movie/${id}`;
+}
+
+document.addEventListener("DOMContentLoaded", loadMovie);
+</script>
 </body>
 </html>
