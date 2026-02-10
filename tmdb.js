@@ -122,4 +122,33 @@ if (searchInput) {
 ================================ */
 document.addEventListener("DOMContentLoaded", () => {
   loadHome(true);
-});
+}); 
+/* ===============================
+   DETALLE PELÍCULA
+================================ */
+async function getMovie(id){
+  const r = await fetch(
+    `https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_KEY}&language=es-MX`
+  );
+  return await r.json();
+}
+
+/* ===============================
+   DETALLE SERIE
+================================ */
+async function getSerie(id){
+  const r = await fetch(
+    `https://api.themoviedb.org/3/tv/${id}?api_key=${TMDB_KEY}&language=es-MX`
+  );
+  return await r.json();
+}
+
+/* ===============================
+   EPISODIOS
+================================ */
+async function getEpisodes(id, season){
+  const r = await fetch(
+    `https://api.themoviedb.org/3/tv/${id}/season/${season}?api_key=${TMDB_KEY}&language=es-MX`
+  );
+  return await r.json();
+}
