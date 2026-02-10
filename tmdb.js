@@ -55,9 +55,6 @@ async function searchTMDB(reset = false) {
   loading = false;
 }
 
-/* ===============================
-   RENDER DE CARDS (FILTRANDO ESTRENOS)
-================================ */
 function renderItems(items) {
   const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
 
@@ -82,7 +79,6 @@ function renderItems(items) {
 
     card.innerHTML = `
       <img src="${IMG + i.poster_path}">
-      <h4>${i.title || i.name}</h4>
     `;
 
     grid.appendChild(card);
