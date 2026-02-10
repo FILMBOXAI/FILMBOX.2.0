@@ -1,28 +1,181 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FILMBOX</title>
+  <meta name="google-site-verification" content="MVta7fYIufFXDOm8V4xosjfixFWA8pgXkMYCqivCvJE" />
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+  <link rel="manifest" href="site.webmanifest">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+  <title>FILMBOX</title>
+  <meta name="description" content="Vive el cine sin límites en FILMBOX. Mira películas y series gratis en línea con los mejores estrenos, acción y suspenso.">
+
 <style>
-body{margin:0;background:#0d0d0d;color:#fff;font-family:Poppins,sans-serif}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;padding:16px}
-.card{cursor:pointer}
-.card img{width:100%;border-radius:12px}
-.card h4{font-size:.8rem;margin-top:6px;text-align:center}
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    color: #fff;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    background-color: rgba(17,17,17,0.9);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    z-index: 100;
+  }
+
+  header .logo {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e81c1c;
+    margin-right: 15px;
+  }
+
+  header input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    outline: none;
+    background: #222;
+    color: #fff;
+  }
+
+  .movies {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .card img {
+    width: 100%;
+    border-radius: 6px;
+    display: block;
+  }
+
+  .card h4 {
+    font-size: 14px;
+    margin: 5px 0 0;
+    text-align: center;
+  }
+
+  .marquee {
+    width: 100%;
+    overflow: hidden;
+    background: #e50914;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 8px 0;
+    white-space: nowrap;
+    margin-top: 10px;
+  }
+
+  .marquee span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scroll 12s linear infinite;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
 </style>
 </head>
+
 <body>
 
-<div class="grid" id="grid"></div>
+<!-- Loader -->
+<div id="loader" style="
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+">
+  <div style="
+    width: 60px;
+    height: 60px;
+    border: 4px solid #fff;
+    border-top: 4px solid #e50914;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  "></div>
 
-<footer style="text-align:center;font-size:12px;color:#aaa;padding:15px;">
-This product uses the TMDB API but is not endorsed or certified by TMDB.
-</footer>
+  <div style="color:#aaa;margin-top:8px;font-size:12px;">
+    CARGANDO NUESTRO CONTENIDO
+  </div>
+</div>
 
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+
+<script>
+  window.addEventListener("load", () => {
+    const loader = document.getElementById("loader");
+
+    if (sessionStorage.getItem("loaderShown")) {
+      loader.style.display = "none";
+      return;
+    }
+
+    setTimeout(() => {
+      loader.style.opacity = 0;
+      setTimeout(() => loader.style.display = "none", 1000);
+    }, 4000);
+
+    sessionStorage.setItem("loaderShown", "true");
+  });
+</script>
+
+<header>
+  <div class="logo">FILMBOX</div>
+  <input type="text" placeholder="Buscar..." disabled>
+</header>
+
+<div class="marquee">
+  <span>MEJORANDO NUESTROS SERVICIOS</span>
+</div>
+
+<!-- 🔥 CONTENEDOR QUE USA tmdb.js -->
+<section class="movies" id="grid"></section>
+
+<!-- ✅ ÚNICA conexión con TMDB -->
 <script src="tmdb.js"></script>
 <script>
-loadHome();
+  document.addEventListener("DOMContentLoaded", () => {
+    loadHome();
+  });
 </script>
+  <footer style="text-align:center;font-size:12px;color:#aaa;padding:15px;">
+This product uses the TMDB API but is not endorsed or certified by TMDB.
+  </footer>
+
 </body>
 </html>
