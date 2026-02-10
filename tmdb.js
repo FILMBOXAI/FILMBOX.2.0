@@ -68,23 +68,21 @@ async function renderItems(items) {
 
     if (!i.poster_path || !i.media_type) return null;
 
-    const link =
-      i.media_type === "movie"
-        ? `movie.html?id=${i.id}`
-        : i.media_type === "tv"
-        ? `serie.html?id=${i.id}`
-        : null;
-
-    if (!link) return null;
-
+    // 🔹 Creamos la card
     const card = document.createElement("div");
     card.className = "card movie-card"; // mantiene hover si ya agregaste CSS
-    card.onclick = () => location.href = link;
 
-    if (i.media_type === "tv") {
+    // 🔹 Creamos el link
+    let link;
+    if (i.media_type === "movie") {
+      link = `movie.html?id=${i.id}`;
+      card.innerHTML = `<img src="${IMG + i.poster_path}">`;
+    } else if (i.media_type === "tv") {
       try {
         const serieData = await getSerie(i.id);
         const lastSeasonNumber = serieData.number_of_seasons;
+        link = `serie.html?id=${i.id}&season=${lastSeasonNumber}`; // última temporada
+
         const lastSeason = serieData.seasons.find(s => s.season_number === lastSeasonNumber);
         if (lastSeason && lastSeason.poster_path) {
           card.innerHTML = `<img src="${IMG + lastSeason.poster_path}">`;
@@ -92,12 +90,14 @@ async function renderItems(items) {
           card.innerHTML = `<img src="${IMG + i.poster_path}">`;
         }
       } catch (e) {
-        console.error("Error cargando temporada:", e);
+        console.error("Error obteniendo última temporada:", e);
+        link = `serie.html?id=${i.id}`; // fallback si falla
         card.innerHTML = `<img src="${IMG + i.poster_path}">`;
       }
-    } else {
-      card.innerHTML = `<img src="${IMG + i.poster_path}">`;
     }
+
+    // 🔹 Acción al hacer clic
+    card.onclick = () => location.href = link;
 
     return card;
   });
@@ -110,6 +110,7 @@ async function renderItems(items) {
     if (c) grid.appendChild(c);
   });
 }
+    
 /* ===============================
    SCROLL INFINITO
 ================================ */
