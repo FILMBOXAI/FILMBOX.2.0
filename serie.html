@@ -3,14 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VER SERIE ONLINE</title>
-<link rel="stylesheet" href="serie.css">
+<title>FILMBOX - Serie</title>
+<style>
+body{background:#0d0d0d;color:#fff;font-family:Poppins,sans-serif;margin:0;padding:0}
+.container{max-width:900px;margin:auto;padding:16px}
+.video-container{background:#000;border-radius:16px;overflow:hidden;box-shadow:0 0 15px rgba(255,0,0,0.3)}
+iframe{width:100%;height:200px;border:none}
+.info-box{background:#111;border-radius:16px;padding:16px;margin-top:16px;display:flex;gap:16px;align-items:flex-start}
+.poster{width:100px;border-radius:10px;box-shadow:0 0 10px rgba(255,255,255,0.1);flex-shrink:0}
+.details{flex:1;display:flex;flex-direction:column;justify-content:flex-start}
+.details h2{margin:0 0 6px 0;font-size:1.25rem;line-height:1.3;word-break:break-word}
+.icons{display:flex;gap:16px;margin-top:6px;color:#ccc;font-size:.9rem;align-items:center;flex-wrap:wrap}
+.icon-item{display:flex;align-items:center;gap:6px}
+.icon-item svg{width:18px;height:18px;fill:#e50914;flex-shrink:0}
+.chapters-box{background:#111;border-radius:16px;padding:16px;margin-top:16px}
+.chapters-box h3{margin:0 0 10px}
+.chapters{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px}
+.chapter-btn{background:#1c1c1c;border:1px solid #333;color:#fff;border-radius:10px;padding:10px 16px;min-width:45px;text-align:center;cursor:pointer;transition:.2s;flex-shrink:0}
+.chapter-btn:hover,.chapter-btn.active{background:#e50914;border-color:#e50914}
+.synopsis{background:#111;border-radius:16px;padding:16px;margin-top:16px;line-height:1.5;font-size:.95rem;color:#ccc}
+.chapters::-webkit-scrollbar{height:6px}
+.chapters::-webkit-scrollbar-thumb{background:#444;border-radius:10px}
+</style>
 </head>
 <body>
+<div class="container">
+  <div class="video-container">
+    <iframe id="videoPlayer" allowfullscreen></iframe>
+  </div>
 
-<div id="app"></div>
+  <div class="info-box">
+    <img class="poster" id="poster" src="" alt="Serie">
+    <div class="details">
+      <h2 id="title">Cargando...</h2>
+      <div class="icons">
+        <div class="icon-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2Zm0 16H5V10h14v10ZM5 8V6h14v2H5Z"/>
+          </svg>
+          <span id="first_air_date">--</span>
+        </div>
+        <div class="icon-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm0 2a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm.5-10V7h-1.5v6h5v-1.5Z"/>
+          </svg>
+          <span id="episode_runtime">-- min / cap</span>
+        </div>
+        <div class="icon-item">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="m12 17.27 6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l4.46 4.73L5.82 21Z"/>
+          </svg>
+          <span id="vote_average">--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapters-box">
+    <h3>Capítulos</h3>
+    <div class="chapters" id="chaptersContainer"></div>
+  </div>
+
+  <div class="synopsis" id="overview">Cargando sinopsis...</div>
+</div>
 
 <script src="tmdb.js"></script>
-<script src="serie.js"></script>
+<script>
+async function loadSerie() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+  if (!id) return;
+
+  const serie = await getSerie(id);
+
+  document.getElementById("poster").src = "https://image.tmdb.org/t/p/original" + serie.poster_path;
+  document.getElementById("title").textContent = serie.name;
+  document.getElementById("overview").textContent = serie.overview;
+  document.getElementById("first_air_date").textContent = serie.first_air_date;
+  document.getElementById("vote_average").textContent = serie.vote_average;
+  document.getElementById("episode_runtime").textContent = serie.episode_run_time[0] ? serie.episode_run_time[0] + " min / cap" : "--";
+
+  const chaptersContainer = document.getElementById("chaptersContainer");
+  chaptersContainer.innerHTML = "";
+
+  // Usar siempre la primera temporada (season_number = 1) y crear botones con embed unlimplay
+  const seasonNum = 1;
+  const episodesData = await getEpisodes(id, seasonNum);
+
+  episodesData.episodes.forEach(ep => {
+    const btn = document.createElement("div");
+    btn.className = "chapter-btn";
+    btn.textContent = ep.episode_number;
+    btn.dataset.video = `https://unlimplay.com/play/embed/tv/${id}/${seasonNum}/${ep.episode_number}`;
+    btn.addEventListener("click", () => {
+      document.getElementById("videoPlayer").src = btn.dataset.video;
+      document.querySelectorAll(".chapter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+    chaptersContainer.appendChild(btn);
+  });
+
+  // Activar primer episodio por defecto
+  const firstBtn = chaptersContainer.querySelector(".chapter-btn");
+  if(firstBtn) {
+    firstBtn.classList.add("active");
+    document.getElementById("videoPlayer").src = firstBtn.dataset.video;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadSerie);
+</script>
 </body>
 </html>
