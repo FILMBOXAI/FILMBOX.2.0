@@ -55,14 +55,18 @@ async function searchTMDB(reset = false) {
   loading = false;
 }
 
-function renderItems(items) {
+/* ===============================
+   CARDS RENDER
+================================ */
+async function renderItems(items) {
   const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
 
-  items.forEach(i => {
+  // Mapeamos cada item a una promesa
+  const cardsPromises = items.map(async i => {
     // 🔹 Filtrar películas que todavía no se estrenaron
-    if (i.media_type === "movie" && i.release_date && i.release_date > today) return;
+    if (i.media_type === "movie" && i.release_date && i.release_date > today) return null;
 
-    if (!i.poster_path || !i.media_type) return;
+    if (!i.poster_path || !i.media_type) return null;
 
     const link =
       i.media_type === "movie"
@@ -71,20 +75,41 @@ function renderItems(items) {
         ? `serie.html?id=${i.id}`
         : null;
 
-    if (!link) return;
+    if (!link) return null;
 
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "card movie-card"; // mantiene hover si ya agregaste CSS
     card.onclick = () => location.href = link;
 
-    card.innerHTML = `
-      <img src="${IMG + i.poster_path}">
-    `;
+    if (i.media_type === "tv") {
+      try {
+        const serieData = await getSerie(i.id);
+        const lastSeasonNumber = serieData.number_of_seasons;
+        const lastSeason = serieData.seasons.find(s => s.season_number === lastSeasonNumber);
+        if (lastSeason && lastSeason.poster_path) {
+          card.innerHTML = `<img src="${IMG + lastSeason.poster_path}">`;
+        } else {
+          card.innerHTML = `<img src="${IMG + i.poster_path}">`;
+        }
+      } catch (e) {
+        console.error("Error cargando temporada:", e);
+        card.innerHTML = `<img src="${IMG + i.poster_path}">`;
+      }
+    } else {
+      card.innerHTML = `<img src="${IMG + i.poster_path}">`;
+    }
 
-    grid.appendChild(card);
+    return card;
+  });
+
+  // Esperamos a que todas las promesas terminen
+  const cards = await Promise.all(cardsPromises);
+
+  // Agregamos solo los cards válidos al grid
+  cards.forEach(c => {
+    if (c) grid.appendChild(c);
   });
 }
-
 /* ===============================
    SCROLL INFINITO
 ================================ */
