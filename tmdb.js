@@ -56,10 +56,15 @@ async function searchTMDB(reset = false) {
 }
 
 /* ===============================
-   RENDER DE CARDS
+   RENDER DE CARDS (FILTRANDO ESTRENOS)
 ================================ */
 function renderItems(items) {
+  const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+
   items.forEach(i => {
+    // 🔹 Filtrar películas que todavía no se estrenaron
+    if (i.media_type === "movie" && i.release_date && i.release_date > today) return;
+
     if (!i.poster_path || !i.media_type) return;
 
     const link =
@@ -122,7 +127,8 @@ if (searchInput) {
 ================================ */
 document.addEventListener("DOMContentLoaded", () => {
   loadHome(true);
-}); 
+});
+
 /* ===============================
    DETALLE PELÍCULA
 ================================ */
