@@ -63,8 +63,9 @@ async function renderItems(items) {
 
   // Mapeamos cada item a una promesa
   const cardsPromises = items.map(async i => {
-    // 🔹 Filtrar películas que todavía no se estrenaron
-    if (i.media_type === "movie" && i.release_date && i.release_date > today) return null;
+    // 🔹 Filtrar contenido que todavía no se ha estrenado
+    const date = i.release_date || i.first_air_date;
+if (!date || date > today) return null;
 
     if (!i.poster_path || !i.media_type) return null;
 
