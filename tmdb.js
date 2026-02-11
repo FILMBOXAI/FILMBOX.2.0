@@ -65,7 +65,14 @@ async function renderItems(items) {
   const cardsPromises = items.map(async i => {
     // 🔹 Filtrar contenido que todavía no se ha estrenado
     const date = i.release_date || i.first_air_date;
-if (!date || date > today) return null;
+
+if (!date) return null;
+
+// Comparación real de fechas (más segura)
+const releaseDate = new Date(date + "T00:00:00");
+const now = new Date();
+
+if (releaseDate > now) return null;
 
     if (!i.poster_path || !i.media_type) return null;
 
