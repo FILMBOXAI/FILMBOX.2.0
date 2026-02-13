@@ -19,7 +19,7 @@ async function loadHome(reset = false) {
   if (reset) {
     page = 1;
     grid.innerHTML = "";
-    window.renderedIDs = new Set(); // 🔥 reset duplicados
+    window.renderedIDs = new Set(); // reset duplicados
   }
 
   const r = await fetch(
@@ -43,7 +43,7 @@ async function searchTMDB(reset = false) {
   if (reset) {
     page = 1;
     grid.innerHTML = "";
-    window.renderedIDs = new Set(); // 🔥 reset duplicados
+    window.renderedIDs = new Set(); // reset duplicados
   }
 
   const r = await fetch(
@@ -51,7 +51,15 @@ async function searchTMDB(reset = false) {
   );
   const d = await r.json();
 
-  renderItems(d.results);
+  // 🔥 Solo películas y series + coincidencia básica
+  const filteredResults = d.results.filter(item => {
+    if (item.media_type !== "movie" && item.media_type !== "tv") return false;
+
+    const title = (item.title || item.name || "").toLowerCase();
+    return title.includes(query.toLowerCase());
+  });
+
+  renderItems(filteredResults);
 
   page++;
   loading = false;
@@ -62,7 +70,6 @@ async function searchTMDB(reset = false) {
 ================================ */
 async function renderItems(items) {
 
-  // 🔥 Sistema global anti-duplicados
   if (!window.renderedIDs) {
     window.renderedIDs = new Set();
   }
@@ -75,12 +82,13 @@ async function renderItems(items) {
 
   const cardsPromises = uniqueItems.map(async i => {
 
-    // 🔹 Filtrar contenido que todavía no se ha estrenado
+    // 🔹 Filtrar contenido no estrenado (VERSIÓN SEGURA)
     const date = i.release_date || i.first_air_date;
     if (!date) return null;
 
     const releaseDate = new Date(date + "T00:00:00");
     const now = new Date();
+
     if (releaseDate > now) return null;
 
     if (!i.poster_path || !i.media_type) return null;
@@ -169,7 +177,7 @@ if (searchInput) {
    INICIO
 ================================ */
 document.addEventListener("DOMContentLoaded", () => {
-  window.renderedIDs = new Set(); // inicializar
+  window.renderedIDs = new Set();
   loadHome(true);
 });
 
