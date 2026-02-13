@@ -19,6 +19,7 @@ async function loadHome(reset = false) {
   if (reset) {
     page = 1;
     grid.innerHTML = "";
+    window.renderedIDs = new Set(); // 🔥 reset duplicados
   }
 
   const r = await fetch(
@@ -42,6 +43,7 @@ async function searchTMDB(reset = false) {
   if (reset) {
     page = 1;
     grid.innerHTML = "";
+    window.renderedIDs = new Set(); // 🔥 reset duplicados
   }
 
   const r = await fetch(
@@ -59,66 +61,77 @@ async function searchTMDB(reset = false) {
    CARDS RENDER
 ================================ */
 async function renderItems(items) {
-  const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
 
-  // Mapeamos cada item a una promesa
-  const cardsPromises = items.map(async i => {
+  // 🔥 Sistema global anti-duplicados
+  if (!window.renderedIDs) {
+    window.renderedIDs = new Set();
+  }
+
+  const uniqueItems = items.filter(i => {
+    if (window.renderedIDs.has(i.id)) return false;
+    window.renderedIDs.add(i.id);
+    return true;
+  });
+
+  const cardsPromises = uniqueItems.map(async i => {
+
     // 🔹 Filtrar contenido que todavía no se ha estrenado
     const date = i.release_date || i.first_air_date;
+    if (!date) return null;
 
-if (!date) return null;
-
-// Comparación real de fechas (más segura)
-const releaseDate = new Date(date + "T00:00:00");
-const now = new Date();
-
-if (releaseDate > now) return null;
+    const releaseDate = new Date(date + "T00:00:00");
+    const now = new Date();
+    if (releaseDate > now) return null;
 
     if (!i.poster_path || !i.media_type) return null;
 
-    // 🔹 Creamos la card
     const card = document.createElement("div");
-    card.className = "card movie-card"; // mantiene hover si ya agregaste CSS
+    card.className = "card movie-card";
 
-    // 🔹 Creamos el link
     let link;
+
     if (i.media_type === "movie") {
+
       link = `movie.html?id=${i.id}`;
       card.innerHTML = `<img src="${IMG + i.poster_path}">`;
+
     } else if (i.media_type === "tv") {
+
       try {
         const serieData = await getSerie(i.id);
         const lastSeasonNumber = serieData.number_of_seasons;
-        link = `serie.html?id=${i.id}&season=${lastSeasonNumber}`; // última temporada
 
-        const lastSeason = serieData.seasons.find(s => s.season_number === lastSeasonNumber);
+        link = `serie.html?id=${i.id}&season=${lastSeasonNumber}`;
+
+        const lastSeason = serieData.seasons.find(
+          s => s.season_number === lastSeasonNumber
+        );
+
         if (lastSeason && lastSeason.poster_path) {
           card.innerHTML = `<img src="${IMG + lastSeason.poster_path}">`;
         } else {
           card.innerHTML = `<img src="${IMG + i.poster_path}">`;
         }
+
       } catch (e) {
         console.error("Error obteniendo última temporada:", e);
-        link = `serie.html?id=${i.id}`; // fallback si falla
+        link = `serie.html?id=${i.id}`;
         card.innerHTML = `<img src="${IMG + i.poster_path}">`;
       }
     }
 
-    // 🔹 Acción al hacer clic
     card.onclick = () => location.href = link;
 
     return card;
   });
 
-  // Esperamos a que todas las promesas terminen
   const cards = await Promise.all(cardsPromises);
 
-  // Agregamos solo los cards válidos al grid
   cards.forEach(c => {
     if (c) grid.appendChild(c);
   });
 }
-    
+
 /* ===============================
    SCROLL INFINITO
 ================================ */
@@ -156,6 +169,7 @@ if (searchInput) {
    INICIO
 ================================ */
 document.addEventListener("DOMContentLoaded", () => {
+  window.renderedIDs = new Set(); // inicializar
   loadHome(true);
 });
 
