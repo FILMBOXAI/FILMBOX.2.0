@@ -61,7 +61,6 @@ iframe{width:100%;height:200px;border:none}
 </style>
 </head>
 <body>
-
 <!-- BOTÓN VOLVER -->
 <button class="back-button" id="backBtn">
   <svg viewBox="0 0 24 24">
@@ -157,21 +156,25 @@ async function loadSerie() {
 
 document.addEventListener("DOMContentLoaded", loadSerie);
 
-// Botón Volver
+// BOTÓN VOLVER
 const backBtn = document.getElementById("backBtn");
 if(backBtn){
   backBtn.addEventListener("click", function(e){
     e.preventDefault();
     e.stopPropagation();
-    history.back(); // Igual que movie.html
+    // Guardar scroll antes de ir al index
+    localStorage.setItem("homeScroll", window.scrollY);
+    window.location.href = "/";
   });
 }
 
-// Restaurar scroll al volver
-window.addEventListener("pageshow", function(event) {
-  const savedPos = localStorage.getItem("homeScroll");
-  if (savedPos) {
-    window.scrollTo(0, parseInt(savedPos));
+// Restaurar scroll cuando se vuelve desde historial del navegador
+window.addEventListener("pageshow", function(event){
+  const savedScroll = localStorage.getItem("homeScroll");
+  if(savedScroll){
+    window.scrollTo(0, parseInt(savedScroll));
+    // Borrar el scroll guardado
+    localStorage.removeItem("homeScroll");
   }
 });
 </script>
