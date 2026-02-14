@@ -128,7 +128,6 @@ async function loadSerie() {
   const chaptersContainer = document.getElementById("chaptersContainer");
   chaptersContainer.innerHTML = "";
 
-  // Usar la última temporada si viene en la URL, sino la última disponible
   let seasonNum = parseInt(params.get("season"));
   if (!seasonNum || seasonNum > serie.number_of_seasons) seasonNum = serie.number_of_seasons;
 
@@ -148,7 +147,6 @@ async function loadSerie() {
     chaptersContainer.appendChild(btn);
   });
 
-  // Activar primer episodio por defecto
   const firstBtn = chaptersContainer.querySelector(".chapter-btn");
   if(firstBtn){
     firstBtn.classList.add("active");
@@ -158,14 +156,29 @@ async function loadSerie() {
 
 document.addEventListener("DOMContentLoaded", loadSerie);
 
+// Guardar scroll al entrar a serie
+document.querySelectorAll('a[href*="serie.html"]').forEach(link => {
+  link.addEventListener('click', () => {
+    localStorage.setItem("homeScroll", window.scrollY);
+  });
+});
+
 // Botón Volver
 const backBtn = document.getElementById("backBtn");
 if(backBtn){
   backBtn.addEventListener("click", function(e){
     e.preventDefault();
-    window.location.href = "/";
+    history.back(); // vuelve al índice sin recargar
   });
 }
+
+// Restaurar scroll al volver
+window.addEventListener("pageshow", function(event) {
+  const savedPos = localStorage.getItem("homeScroll");
+  if (savedPos) {
+    window.scrollTo(0, parseInt(savedPos));
+  }
+});
 </script>
 </body>
 </html>
