@@ -199,6 +199,19 @@
   <footer class="tmdb-footer">
   This product uses the TMDB API but is not endorsed or certified by TMDB.
   </footer>
+<script>
+// Guardar posición del scroll antes de salir
+window.addEventListener("beforeunload", () => {
+  localStorage.setItem("scrollPos", window.scrollY);
+});
 
+// Restaurar posición al cargar la página
+document.addEventListener("DOMContentLoaded", () => {
+  const savedPos = localStorage.getItem("scrollPos");
+  if (savedPos) {
+    window.scrollTo(0, parseInt(savedPos));
+  }
+});
+</script>
 </body>
 </html>
