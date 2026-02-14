@@ -138,5 +138,15 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 });
 </script>
+<script>
+// Restaurar scroll del index.html al volver
+window.addEventListener("pageshow", function(event) {
+  // pageshow se activa incluso si usas el botón de volver del navegador
+  const savedPos = localStorage.getItem("homeScroll");
+  if (savedPos) {
+    window.scrollTo(0, parseInt(savedPos));
+  }
+});
+</script>
 </body>
 </html>
