@@ -168,19 +168,20 @@ if(backBtn){
     const videoPlayer = document.getElementById("videoPlayer");
     videoPlayer.src = "";
 
-    // Guardar scroll
+    // Guardar scroll antes de volver
     localStorage.setItem("homeScroll", window.scrollY);
 
-    // Volver al inicio
-    window.location.href = "/";
+    // Volver a la página anterior en el historial
+    history.back();
   });
 }
 
-// Restaurar scroll al volver
+// Restaurar scroll del index.html al volver
 window.addEventListener("pageshow", function(event) {
   const savedPos = localStorage.getItem("homeScroll");
   if (savedPos) {
     window.scrollTo(0, parseInt(savedPos));
+    localStorage.removeItem("homeScroll"); // opcional, limpia la posición guardada
   }
 });
 </script>
