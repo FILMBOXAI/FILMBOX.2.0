@@ -61,6 +61,7 @@ iframe{width:100%;height:200px;border:none}
 </style>
 </head>
 <body>
+
 <!-- BOTÓN VOLVER -->
 <button class="back-button" id="backBtn">
   <svg viewBox="0 0 24 24">
@@ -128,7 +129,6 @@ async function loadSerie() {
   const chaptersContainer = document.getElementById("chaptersContainer");
   chaptersContainer.innerHTML = "";
 
-  // Usar la última temporada si viene en la URL, sino la última disponible
   let seasonNum = parseInt(params.get("season"));
   if (!seasonNum || seasonNum > serie.number_of_seasons) seasonNum = serie.number_of_seasons;
 
@@ -148,7 +148,6 @@ async function loadSerie() {
     chaptersContainer.appendChild(btn);
   });
 
-  // Activar primer episodio por defecto
   const firstBtn = chaptersContainer.querySelector(".chapter-btn");
   if(firstBtn){
     firstBtn.classList.add("active");
@@ -163,25 +162,16 @@ const backBtn = document.getElementById("backBtn");
 if(backBtn){
   backBtn.addEventListener("click", function(e){
     e.preventDefault();
-
-    // Pausar video antes de volver
-    const videoPlayer = document.getElementById("videoPlayer");
-    videoPlayer.src = "";
-
-    // Guardar scroll antes de volver
-    localStorage.setItem("homeScroll", window.scrollY);
-
-    // Volver a la página anterior en el historial
-    history.back();
+    e.stopPropagation();
+    history.back(); // Igual que movie.html
   });
 }
 
-// Restaurar scroll del index.html al volver
+// Restaurar scroll al volver
 window.addEventListener("pageshow", function(event) {
   const savedPos = localStorage.getItem("homeScroll");
   if (savedPos) {
     window.scrollTo(0, parseInt(savedPos));
-    localStorage.removeItem("homeScroll"); // opcional, limpia la posición guardada
   }
 });
 </script>
